@@ -1,4 +1,4 @@
-# OCR Parsing (Recokr)
+# Recokr OCR Parser
 
 OCR JSON 입력을 받아 계근지(계량표) 필드를 파싱/정규화하는 파이썬 프로젝트입니다.
 
