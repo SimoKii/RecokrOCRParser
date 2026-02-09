@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+dist/
+build/
+.mypy_cache/
+.ruff_cache/
+*.log
+outputs/
+.idea/
+.vscode/
+*.egg-info/
