@@ -2,11 +2,19 @@
 
 OCR JSON 입력을 받아 계근지(계량표) 필드를 파싱/정규화하는 파이썬 프로젝트입니다.
 
+## 주요 특징
+- **노이즈 견고성**: OCR 오탈자, 띄어쓰기 불규칙, 라벨 누락에도 정확한 파싱  
+- **자동 보정**: 유사도 기반 라벨 매칭, 시간-무게 패턴 추론  
+- **신뢰도 평가**: 파싱 결과의 신뢰도를 0.0~1.0 점수로 제공  
+- **상세한 경고**: 표준화된 경고 코드로 문제 추적  
+- **테스트 완비**: 13개 테스트 케이스, 샘플 데이터 4종 포함
+
 ## 실행 방법
 
-### 빠른 실행 (Makefile 사용)
+### Makefile 사용 (권장)
 ```
 make setup
+
 make run INPUT=inputs/sample_01.json OUTPUT=outputs/sample_01.parsed.json
 make run INPUT=inputs/sample_02.json OUTPUT=outputs/sample_02.parsed.json
 make run INPUT=inputs/sample_03.json OUTPUT=outputs/sample_03.parsed.json
@@ -14,12 +22,13 @@ make run INPUT=inputs/sample_04.json OUTPUT=outputs/sample_04.parsed.json
 
 ```
 
-### 수동 실행 (Makefile 없이)
+### 수동 실행 
 ```
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -U pip
 pip install -e .
+
 python -m recokr_ocr_parser --input inputs/sample_01.json --output outputs/sample_01.parsed.json
 python -m recokr_ocr_parser --input inputs/sample_02.json --output outputs/sample_02.parsed.json
 python -m recokr_ocr_parser --input inputs/sample_03.json --output outputs/sample_03.parsed.json
@@ -35,10 +44,10 @@ make test
 
 ## 의존성 / 환경
 
-- Python: 3.10+ (권장 3.11 이상)
-- 빌드: `setuptools>=68.0` (pyproject.toml 기준)
-- 런타임: 표준 라이브러리만 사용
-- 테스트: `pytest` (테스트 실행 시에만 필요)
+- **Python**: 3.10+ (권장 3.11 이상)
+- **빌드**: `setuptools>=68.0`
+- **런타임**: 표준 라이브러리만 사용 (외부 의존성 없음)
+- **테스트**: `pytest`
 
 ## 주요 가정 및 설계
 
@@ -84,4 +93,7 @@ recokr-ocr-parser/
 │   └── test_pipeline.py  # 통합 테스트
 ├── inputs/               # 샘플 입력 파일
 ├── outputs/              # 파싱 결과 출력
+├── Makefile
+├── setup.py
+└── README.md
 ```
