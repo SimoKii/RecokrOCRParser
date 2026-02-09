@@ -44,18 +44,16 @@ make test
 
 ### 개발 문서
 - [Recokr OCR Parser 개발 문서](https://namu00.notion.site/A-2feeaffb9b0e8090b7a8f8769d21b5a0)
-- 개발 과정에서 정리한 문서로, 입력 스키마 요약, 파싱 규칙, 경고/신뢰도 기준, 테스트 케이스 등의 내용을 포함하고 있습니다.
+- 설계/개발 과정에서 정리한 문서로, 입력 스키마 분석, 파싱 규칙 상세, 경고/신뢰도 기준, 테스트 전략 등의 내용을 포함하고 있습니다.
 
-### 주요 가정
-- 입력 JSON은 `pages[].lines[].text` → `pages[].text` → 최상위 `text` 순서로 라인을 추출
-- JSON 파싱 실패 시 텍스트 기반 파싱으로 폴백하고 경고를 기록
-- 공백 정규화 후 노이즈 라인(빈 문자열, `N`, `없다`)을 제거
-- 라벨 사전(`constants.py`) 기반 파싱을 우선 적용하고, 라벨이 없거나 오탈자가 있으면 유사도 매칭으로 보정
-- 무게는 `kg` 단위를 기준으로 추출하며, 시간은 `HH:MM(:SS)` 또는 `HH시 MM분` 패턴을 인식
-- 총/공차가 존재하면 실중량은 차이로 계산하고, 허용 오차(1kg) 초과 시 경고 처리
-- 경고는 `Warning(code, severity, message, context)`로 누적되며, 코드가 표준 형식(`STAGE-CATEGORY-NNN`)으로 변환됨(기존 코드는 `legacy_code`로 보존)
-- 신뢰도는 경고/누락 필드에 따라 감점
-- 발행처는 상단 `(주)` 포함 라인 우선, 없으면 하단 비라벨 라인에서 추정
+### 핵심 설계 원칙
+- **입력 유연성**: `pages[].lines[].text` → `pages[].text` → 최상위 `text` 순서로 폴백
+- **견고한 복구**: JSON 파싱 실패 시 텍스트 기반 파싱으로 자동 전환
+- **노이즈 제거**: 빈 문자열, `N`, `없다` 등 무의미한 라인 자동 필터링
+- **유사도 매칭**: 라벨 오탈자 자동 보정 (임계값: 긴 라벨 0.85, 짧은 라벨 0.66)
+- **다중 포맷 지원**: `HH:MM(:SS)`, `HH시 MM분`, 쉼표/공백 구분 숫자
+- **자동 계산**: 총중량 - 공차중량 = 실중량 (허용 오차 1kg)
+- **표준화된 경고**: `STAGE-CATEGORY-NNN` 형식의 구조화된 에러 코드
 
 ## 한계 및 개선 아이디어
 
@@ -70,16 +68,20 @@ make test
 
 ## 프로젝트 구조
 ```
-src/recokr_ocr_parser/
-  __init__.py     # 패키지 초기화
-  __main__.py     # python -m 진입점
-  cli.py          # CLI 진입점
-  constants.py    # 라벨/키워드/임계값 상수
-  normalizer.py   # 텍스트 정규화 유틸
-  pipeline.py     # 오케스트레이션
-  preprocessor.py # 입력 전처리
-  parser.py       # 라벨/패턴 기반 파싱
-  validator.py    # 검증/경고/신뢰도
-  schema.py       # 출력 스키마
-tests/
+recokr-ocr-parser/
+├── src/recokr_ocr_parser/
+│   ├── __init__.py       # 패키지 초기화
+│   ├── __main__.py       # python -m 진입점
+│   ├── cli.py            # CLI 인터페이스
+│   ├── constants.py      # 라벨/키워드/임계값
+│   ├── normalizer.py     # 텍스트 정규화
+│   ├── preprocessor.py   # 입력 전처리
+│   ├── parser.py         # 라벨/패턴 파싱
+│   ├── validator.py      # 검증/경고/신뢰도
+│   ├── schema.py         # 출력 스키마
+│   └── pipeline.py       # 오케스트레이션
+├── tests/
+│   └── test_pipeline.py  # 통합 테스트
+├── inputs/               # 샘플 입력 파일
+├── outputs/              # 파싱 결과 출력
 ```
